@@ -165,9 +165,15 @@
 /datum/controller/subsystem/ticker/proc/declare_completion()
 	set waitfor = FALSE
 
-	to_chat(world, "<BR><BR><BR><span class='big bold'>The round has ended.</span>")
-	SSredbot.send_discord_message("ooc", "**The round has ended.**")
-	log_game("The round has ended.")
+	// [CELADON-EDIT] - CELADON_QOL - Добавление Round ID в сообщение об окончании раунда
+	var/round_end_message = "The round has ended."
+	if(GLOB.round_id)
+		round_end_message = "The round has ended. Round ID: [GLOB.round_id]"
+
+	to_chat(world, "<BR><BR><BR><span class='big bold'>[round_end_message]</span>")
+	SSredbot.send_discord_message("ooc", "**[round_end_message]**")
+	log_game("[round_end_message]")
+	// [/CELADON-EDIT]
 
 	for(var/I in round_end_events)
 		var/datum/callback/cb = I
