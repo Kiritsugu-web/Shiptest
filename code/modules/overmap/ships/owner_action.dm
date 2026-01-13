@@ -213,7 +213,8 @@
 			if(!target_mind)
 				return TRUE
 			// swaps their eligibility
-			parent_ship.owner_candidates[target_mind]["eligible"] = !parent_ship.owner_candidates[target_mind]["eligible"]
+			var/list/candidates = parent_ship.owner_candidates
+			candidates[target_mind]["eligible"] = !candidates[target_mind]["eligible"]
 			update_static_data(user)
 			return TRUE
 

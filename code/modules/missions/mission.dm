@@ -47,7 +47,7 @@
 	/// Assoc list of atoms "bound" to this mission; each atom is associated with a 2-element list. The first
 	/// entry in that list is a bool that determines if the mission should fail when the atom qdeletes; the second
 	/// is a callback to be invoked upon the atom's qdeletion.
-	var/list/atom/movable/bound_atoms
+	var/list/bound_atoms
 	var/bound_left_location = FALSE
 
 	var/blackbox_prefix = ""
@@ -249,7 +249,8 @@
 /datum/mission/proc/remove_bound(atom/movable/bound)
 	UnregisterSignal(bound, list(COMSIG_QDELETING, COMSIG_ATOM_VIRTUAL_Z_CHANGE))
 	// delete the callback
-	qdel(LAZYACCESSASSOC(bound_atoms, bound, 2))
+	var/list/atoms = bound_atoms
+	qdel(atoms?[bound]?[2])
 	// remove info from our list
 	LAZYREMOVE(bound_atoms, bound)
 

@@ -52,7 +52,7 @@
 	/// List of mob refs indexed by their job instance
 	var/list/datum/weakref/job_holder_refs = list()
 
-	var/list/datum/mind/owner_candidates
+	var/list/owner_candidates
 
 	/// The mob of the current ship owner. Tracking mostly uses this; that lets us pick up on logouts, which let us
 	/// determine if a player is switching to control of a mob with a different mind, who thus shouldn't be the ship owner.
@@ -534,7 +534,8 @@
 			return cand_mob
 
 /datum/overmap/ship/controlled/proc/get_mob_if_valid_owner(datum/mind/candidate)
-	if(!(candidate in owner_candidates) || !owner_candidates[candidate]["eligible"])
+	var/list/candidates = owner_candidates
+	if(!(candidate in candidates) || !candidates[candidate]["eligible"])
 		return null
 	var/mob/cand_mob = candidate.active ? candidate.current : candidate.get_ghost(FALSE, FALSE)
 	// testing trace

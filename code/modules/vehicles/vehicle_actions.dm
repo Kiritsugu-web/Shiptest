@@ -19,25 +19,29 @@
 	for(var/i in occupants)
 		grant_controller_actions(i)	//refresh
 
-/obj/vehicle/proc/grant_action_type_to_mob(actiontype, mob/m)
-	if(isnull(occupants[m]) || !actiontype)
+/obj/vehicle/proc/grant_action_type_to_mob(actiontype, mob/M)
+	var/list/mob_occupants = occupants
+	if(isnull(mob_occupants[M]) || !actiontype)
 		return FALSE
-	LAZYINITLIST(occupant_actions[m])
-	if(occupant_actions[m][actiontype])
+	LAZYINITLIST(occupant_actions[M])
+	var/list/mob_actions = occupant_actions[M]
+	if(mob_actions[actiontype])
 		return TRUE
 	var/datum/action/action = generate_action_type(actiontype)
-	action.Grant(m)
-	occupant_actions[m][action.type] = action
+	action.Grant(M)
+	mob_actions[action.type] = action
 	return TRUE
 
-/obj/vehicle/proc/remove_action_type_from_mob(actiontype, mob/m)
-	if(isnull(occupants[m]) || !actiontype)
+/obj/vehicle/proc/remove_action_type_from_mob(actiontype, mob/M)
+	var/list/mob_occupants = occupants
+	if(isnull(mob_occupants[M]) || !actiontype)
 		return FALSE
-	LAZYINITLIST(occupant_actions[m])
-	if(occupant_actions[m][actiontype])
-		var/datum/action/action = occupant_actions[m][actiontype]
-		action.Remove(m)
-		occupant_actions[m] -= actiontype
+	LAZYINITLIST(occupant_actions[M])
+	var/list/mob_actions = occupant_actions[M]
+	if(mob_actions[actiontype])
+		var/datum/action/action = mob_actions[actiontype]
+		action.Remove(M)
+		mob_actions -= actiontype
 	return TRUE
 
 /obj/vehicle/proc/grant_passenger_actions(mob/M)
@@ -49,15 +53,17 @@
 		remove_action_type_from_mob(v, M)
 
 /obj/vehicle/proc/grant_controller_actions(mob/M)
-	if(!istype(M) || isnull(occupants[M]))
+	var/list/vehicle_occupants = occupants
+	if(!istype(M) || isnull(vehicle_occupants[M]))
 		return FALSE
 	for(var/i in GLOB.bitflags)
-		if(occupants[M] & i)
+		if(vehicle_occupants[M] & i)
 			grant_controller_actions_by_flag(M, i)
 	return TRUE
 
 /obj/vehicle/proc/remove_controller_actions(mob/M)
-	if(!istype(M) || isnull(occupants[M]))
+	var/list/vehicle_occupants = occupants
+	if(!istype(M) || isnull(vehicle_occupants[M]))
 		return FALSE
 	for(var/i in GLOB.bitflags)
 		remove_controller_actions_by_flag(M, i)
@@ -80,12 +86,14 @@
 /obj/vehicle/proc/cleanup_actions_for_mob(mob/M)
 	if(!istype(M))
 		return FALSE
-	for(var/path in occupant_actions[M])
+	var/list/all_occupant_actions = occupant_actions
+	var/list/mob_actions = all_occupant_actions[M]
+	for(var/path in mob_actions)
 		stack_trace("Leftover action type [path] in vehicle type [type] for mob type [M.type] - THIS SHOULD NOT BE HAPPENING!")
-		var/datum/action/action = occupant_actions[M][path]
+		var/datum/action/action = mob_actions[path]
 		action.Remove(M)
-		occupant_actions[M] -= path
-	occupant_actions -= M
+		mob_actions -= path
+	all_occupant_actions -= M
 	return TRUE
 
 //ACTION DATUMS
